@@ -1,8 +1,8 @@
-const axios = require('axios');
-
 module.exports = (api) => {
-  api.registerAccessory('TemperatureSensor', TemperatureSensor);
+  api.registerAccessory('homebridge-ds18b20-web-client','TemperatureSensor', TemperatureSensor);
 };
+
+const fetch = require('node-fetch');
 
 class TemperatureSensor {
 
@@ -16,14 +16,19 @@ class TemperatureSensor {
     this.name = config.name;
     this.ip = config.ip;
     // create a new Temperature Sensor service
-    this.service = new this.Service(this.Service.TemperatureSensor);
+    this.service = new this.Service(this.Service.TemperatureSensor, '0000008A-0000-1000-8000-0026BB765291');
+
+  this.informationService = new this.api.hap.Service.AccessoryInformation()
+      .setCharacteristic(this.api.hap.Characteristic.Manufacturer, "Lypzor")
+      .setCharacteristic(this.api.hap.Characteristic.Model, "ESP32");
 
     // create handlers for required characteristics
     this.service.getCharacteristic(this.Characteristic.CurrentTemperature)
         .onGet(async () => {
           this.log.debug('Triggered GET CurrentTemperature');
           try {
-            const { temperature } = await axios.get(`http://${this.ip}`);
+            const response = await fetch(`http://${this.ip}`);
+            const { temperature } = await response.json();
             this.log.info(`Temperature was fetched: ${temperature}`);
             return temperature;
           } catch (error) {
@@ -31,4 +36,11 @@ class TemperatureSensor {
           }
         });
   }
+
+    getServices() {
+        return [
+            this.informationService,
+            this.service,
+        ];
+    }
 }
