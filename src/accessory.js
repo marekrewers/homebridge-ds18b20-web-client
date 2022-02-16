@@ -36,9 +36,8 @@ class TemperatureSensor {
           }
         });
   }
-
-    getServices() {
-        return [
+  getServices() {
+      return [
             this.informationService,
             this.service,
         ];
