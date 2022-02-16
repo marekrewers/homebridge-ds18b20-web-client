@@ -14,7 +14,7 @@ class TemperatureSensor {
     this.Characteristic = this.api.hap.Characteristic;
 
     this.name = config.name;
-    this.ip = config.ip;
+    this.url = config.url;
     // create a new Temperature Sensor service
     this.service = new this.Service(this.Service.TemperatureSensor, '0000008A-0000-1000-8000-0026BB765291');
 
@@ -27,7 +27,7 @@ class TemperatureSensor {
         .onGet(async () => {
           this.log.debug('Triggered GET CurrentTemperature');
           try {
-            const response = await fetch(`http://${this.ip}`);
+            const response = await fetch(this.url);
             const { temperature } = await response.json();
             this.log.info(`Temperature was fetched: ${temperature}`);
             return temperature;
